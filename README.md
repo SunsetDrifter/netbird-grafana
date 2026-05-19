@@ -43,16 +43,12 @@ An annotation overlay marks every `netbird-server` restart so metric jumps stay 
 
 ### 1. Ship metrics to your Prometheus
 
-Pick one of the example configs and adapt the placeholder hostnames:
+See [`EXAMPLES.md`](EXAMPLES.md) for full agent configs — a Grafana Alloy
+example (recommended; also collects host metrics via its built-in
+`node_exporter` equivalent) and a vanilla Prometheus agent-mode equivalent.
 
-- [`examples/alloy.config.alloy`](examples/alloy.config.alloy) — recommended;
-  also collects host metrics via Alloy's built-in `node_exporter` equivalent
-- [`examples/prometheus.yml`](examples/prometheus.yml) — vanilla Prometheus agent
-  mode equivalent
-
-Both ship metrics to a remote-write endpoint (Grafana Cloud or self-hosted) using
-basic auth from environment variables. Don't bake credentials into the file —
-keep them in a `.env` (gitignored).
+Adapt the placeholder hostnames, and keep credentials in a `.env`
+(gitignored) rather than the config itself.
 
 ### 2. Import the dashboard
 
