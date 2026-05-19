@@ -1,0 +1,105 @@
+// Grafana Alloy configuration for shipping NetBird OSS metrics to Grafana Cloud
+// (or any Prometheus remote_write endpoint).
+//
+// Three scrape jobs:
+//   - netbird-server  -> management/relay/process/go series from NetBird itself
+//   - traefik         -> router/entrypoint/service metrics (optional, omit if you
+//                        don't run Traefik in front of NetBird)
+//   - host (unix)     -> CPU/memory/disk/network from the host the agent runs on
+//
+// Set GC_PROM_URL, GC_PROM_USER, GC_PROM_TOKEN in the environment before starting
+// Alloy. With docker-compose, point env_file at an .env file (gitignored).
+
+// ---- NetBird application metrics ----
+prometheus.scrape "netbird" {
+  targets = [
+    {
+      __address__ = "netbird-server:9090",
+      // Override the auto-generated instance label so every scrape job lines up
+      // under the same instance for dashboard filtering. Replace with the public
+      // hostname or any stable identifier for this NetBird deployment.
+      instance    = "netbird.example.com",
+      job         = "netbird-server",
+    },
+  ]
+  forward_to      = [prometheus.relabel.netbird.receiver]
+  scrape_interval = "60s"
+}
+
+prometheus.relabel "netbird" {
+  // NetBird emits otel_scope_* labels with empty values on every series.
+  // They add no information and bloat cardinality, so drop them at the agent.
+  rule {
+    action = "labeldrop"
+    regex  = "otel_scope_.*"
+  }
+  forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+}
+
+// ---- Traefik metrics (optional) ----
+// Enable on Traefik with:
+//   --entrypoints.metrics.address=:8082
+//   --metrics.prometheus=true
+//   --metrics.prometheus.entrypoint=metrics
+//   --metrics.prometheus.addrouterslabels=true
+//   --metrics.prometheus.addserviceslabels=true
+prometheus.scrape "traefik" {
+  targets = [
+    {
+      __address__ = "traefik:8082",
+      instance    = "netbird.example.com",
+      job         = "traefik",
+    },
+  ]
+  forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
+  scrape_interval = "60s"
+}
+
+// ---- Host metrics via Alloy's built-in unix (node_exporter) integration ----
+// Requires bind mounts on the agent container:
+//   - /proc:/host/proc:ro,rslave
+//   - /sys:/host/sys:ro,rslave
+//   - /:/host/rootfs:ro,rslave
+// Without those mounts the exporter reads its own container namespace, not the host.
+prometheus.exporter.unix "host" {
+  rootfs_path = "/host/rootfs"
+  procfs_path = "/host/proc"
+  sysfs_path  = "/host/sys"
+
+  set_collectors = ["cpu", "loadavg", "meminfo", "filesystem", "netdev", "diskstats", "uname", "time"]
+
+  filesystem {
+    fs_types_exclude     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+    mount_points_exclude = "^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)"
+  }
+}
+
+prometheus.scrape "host" {
+  targets         = prometheus.exporter.unix.host.targets
+  forward_to      = [prometheus.relabel.host.receiver]
+  scrape_interval = "60s"
+}
+
+prometheus.relabel "host" {
+  // Force the same instance label as the other jobs so the dashboard's
+  // $instance filter matches host metrics too.
+  rule {
+    action       = "replace"
+    target_label = "instance"
+    replacement  = "netbird.example.com"
+  }
+  forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+}
+
+// ---- Remote write ----
+prometheus.remote_write "grafana_cloud" {
+  endpoint {
+    name = "grafana-cloud"
+    url  = sys.env("GC_PROM_URL")
+
+    basic_auth {
+      username = sys.env("GC_PROM_USER")
+      password = sys.env("GC_PROM_TOKEN")
+    }
+  }
+}
