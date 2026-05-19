@@ -28,7 +28,7 @@
       }
     ]
   },
-  "description": "NetBird community-edition dashboard v3. Covers NetBird app metrics, Traefik router/entrypoint metrics, and EC2 host metrics (via Alloy's built-in unix exporter). Replaces v2's broken Update-channel panels (metric removed in 0.71.x) with store-transaction latency.",
+  "description": "NetBird community-edition dashboard. Covers NetBird app metrics, optional Traefik edge metrics, and host metrics. Source: https://github.com/SunsetDrifter/netbird-grafana",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -3484,7 +3484,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "NetBird / Community OSS (v3)",
+  "title": "NetBird (Community OSS)",
   "uid": "netbird-oss-v3",
   "version": 1,
   "weekStart": ""
