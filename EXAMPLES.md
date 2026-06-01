@@ -18,11 +18,20 @@ dropdown filters on.
 
 ## Grafana Alloy
 
-Three scrape jobs in one agent:
-- `netbird-server` — management / relay / process / Go series from NetBird itself
+Scrape jobs in one agent:
+- `netbird-server` — Management API / process / Go series from NetBird itself
+- `netbird-signal` — Signal service (peer registration, message forwarding)
+- `netbird-relay` — Relay service (relayed-traffic peers, bandwidth, latency)
 - `traefik` — router / entrypoint / service metrics (optional; omit if you don't
   front NetBird with Traefik)
 - `host` (unix exporter) — CPU / memory / disk / network on the host running Alloy
+
+Each NetBird component exposes its own `/metrics` on `:9090`. Give all of them
+the **same `instance` label** so one `$instance` selection covers the whole
+deployment. The Signal job label **must** be `netbird-signal` — the dashboard's
+Signal panels filter on it (Signal's metric names are unprefixed and would
+otherwise collide). In a combined single-container deployment where Management,
+Signal, and Relay share one `:9090`, point all three jobs at the same address.
 
 The unix exporter needs three read-only bind mounts on the agent container:
 - `/proc:/host/proc:ro,rslave`
@@ -54,6 +63,25 @@ prometheus.relabel "netbird" {
     regex  = "otel_scope_.*"
   }
   forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+}
+
+// ---- Signal service metrics ----
+// job MUST be "netbird-signal": the dashboard's Signal panels filter on it.
+prometheus.scrape "netbird_signal" {
+  targets = [
+    { __address__ = "signal:9090", instance = "netbird.example.com", job = "netbird-signal" },
+  ]
+  forward_to      = [prometheus.relabel.netbird.receiver]
+  scrape_interval = "60s"
+}
+
+// ---- Relay service metrics ----
+prometheus.scrape "netbird_relay" {
+  targets = [
+    { __address__ = "relay:9090", instance = "netbird.example.com", job = "netbird-relay" },
+  ]
+  forward_to      = [prometheus.relabel.netbird.receiver]
+  scrape_interval = "60s"
 }
 
 // ---- Traefik metrics (optional) ----
@@ -135,6 +163,23 @@ scrape_configs:
       - targets: ["netbird-server:9090"]
     metric_relabel_configs:
       # NetBird emits empty otel_scope_* labels; drop them to save cardinality.
+      - regex: "otel_scope_.*"
+        action: labeldrop
+
+  # Signal service. The job name MUST be netbird-signal — the dashboard's
+  # Signal panels filter on it (Signal's metric names are unprefixed).
+  - job_name: netbird-signal
+    static_configs:
+      - targets: ["signal:9090"]
+    metric_relabel_configs:
+      - regex: "otel_scope_.*"
+        action: labeldrop
+
+  # Relay service.
+  - job_name: netbird-relay
+    static_configs:
+      - targets: ["relay:9090"]
+    metric_relabel_configs:
       - regex: "otel_scope_.*"
         action: labeldrop
 
