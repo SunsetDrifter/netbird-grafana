@@ -85,32 +85,18 @@ all three components (the `EXAMPLES.md` configs do this).
 
 ## Compatibility
 
-- Built and tested against **NetBird 0.71.2**.
-- Metric names were verified against the NetBird source instrument definitions
-  (`management/server/telemetry`, `signal/metrics`, `relay/metrics`) rendered
-  through NetBird's exact OpenTelemetry Prometheus exporter (`v0.64.0`). The
-  rendering rules that matter: monotonic counters get `_total`; unit-`1`
-  observable gauges get `_ratio` (e.g. `…connected_streams_ratio`); millisecond
-  histograms render as `…_ms_milliseconds_bucket`; the network-map size metric
-  carries its `objects` unit (`…object_count_objects_bucket`).
-- These suffixes are produced by the OTel exporter version, which has changed
-  across releases — so on a **much older or newer** NetBird, a panel may show
-  "No data" if the suffix differs. To resolve: list your build's series with
-  Grafana's metrics browser or `/api/v1/label/__name__/values` and adjust.
-- Note: NetBird's own published per-component dashboards currently carry some
-  stale suffixes (e.g. `…_counter_ratio_total`, `…_ms_bucket` for the gRPC
-  metrics) that today's binary does not emit — this dashboard uses the
-  source-verified names instead.
-
-- **Combined vs. individual components.** Run separately, the Signal service
-  emits unprefixed names (`active_peers`, …) under `job="netbird-signal"`. Run
-  combined (the default `netbirdio/netbird-server` container), Signal instruments
-  carry a `signal_` prefix on the one `job="netbird-server"` endpoint. Signal
-  panels match both, e.g. `{__name__=~"(signal_)?registrations_total", job=~"netbird-(server|signal)"}`.
-- A counter/histogram only appears after its first observation, so some panels
-  read "No data" on an idle server until the activity occurs (peer sync, store
-  ops, IdP calls). The two "gRPC by method" panels need `rpc_server_*`
-  (otelgrpc), which 0.71.2's combined server doesn't emit.
+- Built and tested against **NetBird 0.71.2**; metric names verified against the
+  NetBird source instruments rendered through its OTel Prometheus exporter.
+- Metric suffixes are set by NetBird's OTel exporter version, so a **much older or
+  newer** build may rename a series and show "No data". To check, list your
+  build's series via Grafana's metrics browser or `/api/v1/label/__name__/values`.
+- **Combined vs. individual components.** Run separately, Signal emits unprefixed
+  names (`active_peers`, …) under `job="netbird-signal"`. Run combined (the default
+  `netbird-server` container), Signal instruments carry a `signal_` prefix under
+  `job="netbird-server"`. Signal panels match both.
+- A counter/histogram only appears after its first observation, so some panels read
+  "No data" on an idle server until the activity occurs. The "gRPC by method" panels
+  need `rpc_server_*` (otelgrpc), which 0.71.2's combined server doesn't emit.
 
 ## License
 
