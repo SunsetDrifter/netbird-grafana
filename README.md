@@ -8,9 +8,8 @@ dashboards), this is **one at-a-glance dashboard for IT admins** — the most
 important health signals up top, then logically ordered rows covering every
 NetBird component, the optional Traefik edge, and the underlying host.
 
-Tested against **NetBird 0.71.2**. The Signal, gRPC, and Relay-detail panels are
-built from NetBird's current observability docs and may need a newer release.
-See [Compatibility](#compatibility).
+Tested against **NetBird 0.71.2** (combined and individual-component
+deployments). See [Compatibility](#compatibility).
 
 ## What's in the dashboard
 
@@ -47,12 +46,12 @@ An annotation overlay marks every `netbird-server` restart so metric jumps stay 
 
 ## Prerequisites
 
-- A NetBird OSS server reachable by your metrics agent. Each component
-  (Management, Signal, Relay) exposes Prometheus metrics on `:9090` by default —
-  usually only on the internal Docker network, not the host. Scrape **all three**
-  to light up the Signal and Relay rows (see [`EXAMPLES.md`](EXAMPLES.md)); the
-  dashboard still works if you only scrape Management — Signal/Relay panels just
-  show "No data".
+- A NetBird OSS server reachable by your metrics agent, exposing Prometheus
+  metrics on `:9090` (usually only on the internal Docker network, not the host).
+  On the **combined** single-container image, Management + Signal + Relay all
+  share that one `:9090`, so a single scrape job lights up every NetBird row. On
+  a **separated** deployment, scrape each component's `:9090` as its own job to
+  cover the Signal and Relay rows (see [`EXAMPLES.md`](EXAMPLES.md)).
 - A Prometheus-compatible datasource in Grafana. Grafana Cloud's free tier is
   enough for a homelab.
 - A metrics agent — [Grafana Alloy](https://grafana.com/docs/alloy/) or vanilla
@@ -103,11 +102,15 @@ all three components (the `EXAMPLES.md` configs do this).
   metrics) that today's binary does not emit — this dashboard uses the
   source-verified names instead.
 
-The dashboard scopes Signal panels by `job="netbird-signal"` (Signal's metric
-names — `active_peers`, `registrations_total`, … — are unprefixed and would
-otherwise collide with other exporters). The only other hardcoded job label is
-`up{job="netbird-server"}` in the Scrape OK indicator. Everything else uses
-metric-name selectors, so it composes with whatever scrape topology you have.
+- **Combined vs. individual components.** Run separately, the Signal service
+  emits unprefixed names (`active_peers`, …) under `job="netbird-signal"`. Run
+  combined (the default `netbirdio/netbird-server` container), Signal instruments
+  carry a `signal_` prefix on the one `job="netbird-server"` endpoint. Signal
+  panels match both, e.g. `{__name__=~"(signal_)?registrations_total", job=~"netbird-(server|signal)"}`.
+- A counter/histogram only appears after its first observation, so some panels
+  read "No data" on an idle server until the activity occurs (peer sync, store
+  ops, IdP calls). The two "gRPC by method" panels need `rpc_server_*`
+  (otelgrpc), which 0.71.2's combined server doesn't emit.
 
 ## License
 

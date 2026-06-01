@@ -874,7 +874,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(active_peers{job=\"netbird-signal\",instance=~\"$instance\"})",
+          "expr": "sum({__name__=~\"(signal_)?active_peers\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"})",
           "legendFormat": "active",
           "refId": "A"
         }
@@ -2171,7 +2171,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(messages_forwarded_total{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval]))",
+          "expr": "sum(rate({__name__=~\"(signal_)?messages_forwarded_total\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval]))",
           "legendFormat": "forwarded/s",
           "refId": "A"
         }
@@ -2270,7 +2270,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(message_forward_failures_total{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval]))",
+          "expr": "sum(rate({__name__=~\"(signal_)?message_forward_failures_total\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval]))",
           "legendFormat": "failures/s",
           "refId": "A"
         }
@@ -2365,7 +2365,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, sum by (le) (rate(message_forward_latency_milliseconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate({__name__=~\"(signal_)?message_forward_latency_milliseconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p50",
           "refId": "A"
         },
@@ -2375,7 +2375,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.9, sum by (le) (rate(message_forward_latency_milliseconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.9, sum by (le) (rate({__name__=~\"(signal_)?message_forward_latency_milliseconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p90",
           "refId": "B"
         },
@@ -2385,7 +2385,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(message_forward_latency_milliseconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate({__name__=~\"(signal_)?message_forward_latency_milliseconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p99",
           "refId": "C"
         }
@@ -2480,7 +2480,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(registrations_total{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval]))",
+          "expr": "sum(rate({__name__=~\"(signal_)?registrations_total\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval]))",
           "legendFormat": "registrations/s",
           "refId": "A"
         },
@@ -2490,7 +2490,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(deregistrations_total{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval]))",
+          "expr": "sum(rate({__name__=~\"(signal_)?deregistrations_total\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval]))",
           "legendFormat": "deregistrations/s",
           "refId": "B"
         }
@@ -2589,7 +2589,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(registration_failures_total{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval]))",
+          "expr": "sum(rate({__name__=~\"(signal_)?registration_failures_total\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval]))",
           "legendFormat": "failures/s",
           "refId": "A"
         }
@@ -2684,7 +2684,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, sum by (le) (rate(registration_delay_milliseconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate({__name__=~\"(signal_)?registration_delay_milliseconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p50",
           "refId": "A"
         },
@@ -2694,7 +2694,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.9, sum by (le) (rate(registration_delay_milliseconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.9, sum by (le) (rate({__name__=~\"(signal_)?registration_delay_milliseconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p90",
           "refId": "B"
         },
@@ -2704,7 +2704,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(registration_delay_milliseconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate({__name__=~\"(signal_)?registration_delay_milliseconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p99",
           "refId": "C"
         }
@@ -2799,7 +2799,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, sum by (le) (rate(peer_connection_duration_seconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate({__name__=~\"(signal_)?peer_connection_duration_seconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p50",
           "refId": "A"
         },
@@ -2809,7 +2809,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.9, sum by (le) (rate(peer_connection_duration_seconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.9, sum by (le) (rate({__name__=~\"(signal_)?peer_connection_duration_seconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p90",
           "refId": "B"
         },
@@ -2819,7 +2819,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(peer_connection_duration_seconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate({__name__=~\"(signal_)?peer_connection_duration_seconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p99",
           "refId": "C"
         }
@@ -2914,7 +2914,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, sum by (le) (rate(get_registration_delay_milliseconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate({__name__=~\"(signal_)?get_registration_delay_milliseconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p50",
           "refId": "A"
         },
@@ -2924,7 +2924,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.9, sum by (le) (rate(get_registration_delay_milliseconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.9, sum by (le) (rate({__name__=~\"(signal_)?get_registration_delay_milliseconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p90",
           "refId": "B"
         },
@@ -2934,7 +2934,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(get_registration_delay_milliseconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate({__name__=~\"(signal_)?get_registration_delay_milliseconds_bucket\",job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "p99",
           "refId": "C"
         }
@@ -3029,7 +3029,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (rpc_method) (rate(rpc_server_requests_per_rpc_count{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval]))",
+          "expr": "sum by (rpc_method) (rate(rpc_server_requests_per_rpc_count{job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval]))",
           "legendFormat": "{{rpc_method}}",
           "refId": "A"
         }
@@ -3124,7 +3124,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (rpc_method, le) (rate(rpc_server_duration_milliseconds_bucket{job=\"netbird-signal\",instance=~\"$instance\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by (rpc_method, le) (rate(rpc_server_duration_milliseconds_bucket{job=~\"netbird-(server|signal)\",instance=~\"$instance\"}[$__rate_interval])))",
           "legendFormat": "{{rpc_method}}",
           "refId": "A"
         }

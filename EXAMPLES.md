@@ -26,12 +26,29 @@ Scrape jobs in one agent:
   front NetBird with Traefik)
 - `host` (unix exporter) — CPU / memory / disk / network on the host running Alloy
 
-Each NetBird component exposes its own `/metrics` on `:9090`. Give all of them
-the **same `instance` label** so one `$instance` selection covers the whole
-deployment. The Signal job label **must** be `netbird-signal` — the dashboard's
-Signal panels filter on it (Signal's metric names are unprefixed and would
-otherwise collide). In a combined single-container deployment where Management,
-Signal, and Relay share one `:9090`, point all three jobs at the same address.
+Give every job the **same `instance` label** so one `$instance` selection covers
+the whole deployment.
+
+There are two topologies, and the dashboard supports both:
+
+- **Separated components** (this section's layout): Management, Signal, and Relay
+  run as distinct services, each exposing its own `/metrics` on `:9090`. Scrape
+  them as three jobs — `netbird-server`, `netbird-signal`, `netbird-relay`. Here
+  the Signal binary emits its metrics **unprefixed** (`active_peers`,
+  `registrations_total`, …), so the `netbird-signal` job label is what
+  distinguishes them.
+- **Combined single container** (the default `netbirdio/netbird-server` image):
+  Management, Signal, and Relay share **one** meter on **one** `:9090`, so a
+  single `netbird-server` scrape job captures everything — there is no `signal:9090`
+  or `relay:9090` to scrape. In this mode the combined binary registers Signal
+  instruments with a **`signal_` prefix** (`signal_active_peers`,
+  `signal_registrations_total`, …); Relay metrics keep their `relay_` prefix.
+
+To work across both, the dashboard's Signal panels match either name form and
+either job, e.g.
+`{__name__=~"(signal_)?registrations_total", job=~"netbird-(server|signal)"}`.
+So for a combined deployment you only need the `netbird-server` job below; the
+`netbird-signal` / `netbird-relay` jobs apply only to a separated deployment.
 
 The unix exporter needs three read-only bind mounts on the agent container:
 - `/proc:/host/proc:ro,rslave`
@@ -65,8 +82,10 @@ prometheus.relabel "netbird" {
   forward_to = [prometheus.remote_write.grafana_cloud.receiver]
 }
 
-// ---- Signal service metrics ----
-// job MUST be "netbird-signal": the dashboard's Signal panels filter on it.
+// ---- Signal service metrics (separated deployments only) ----
+// Skip this block on a combined single-container deployment — Signal metrics
+// already arrive on the netbird-server job above (prefixed "signal_").
+// In a separated deployment, use job "netbird-signal" (unprefixed names).
 prometheus.scrape "netbird_signal" {
   targets = [
     { __address__ = "signal:9090", instance = "netbird.example.com", job = "netbird-signal" },
@@ -166,8 +185,10 @@ scrape_configs:
       - regex: "otel_scope_.*"
         action: labeldrop
 
-  # Signal service. The job name MUST be netbird-signal — the dashboard's
-  # Signal panels filter on it (Signal's metric names are unprefixed).
+  # Signal service (separated deployments only). Skip on a combined
+  # single-container deployment — Signal metrics arrive on netbird-server
+  # (prefixed "signal_"). In a separated deployment, job netbird-signal
+  # carries the unprefixed names.
   - job_name: netbird-signal
     static_configs:
       - targets: ["signal:9090"]
