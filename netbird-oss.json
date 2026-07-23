@@ -47,7 +47,7 @@
       "gridPos": {
         "x": 0,
         "y": 0,
-        "w": 4,
+        "w": 3,
         "h": 4
       },
       "options": {
@@ -156,7 +156,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 4,
+        "x": 3,
         "y": 0
       },
       "id": 1,
@@ -226,7 +226,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 8,
+        "x": 7,
         "y": 0
       },
       "id": 2,
@@ -292,7 +292,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 12,
+        "x": 11,
         "y": 0
       },
       "id": 3,
@@ -334,6 +334,72 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "description": "Open management proxy connections.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 15,
+        "y": 0
+      },
+      "id": 90,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(management_proxy_connection_count{instance=~\"$instance\"})",
+          "instant": true,
+          "legendFormat": "Proxy",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Proxy connections",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "description": "Management server uptime since last process start.",
       "fieldConfig": {
         "defaults": {
@@ -356,8 +422,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 16,
+        "w": 3,
+        "x": 18,
         "y": 0
       },
       "id": 5,
@@ -426,8 +492,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 20,
+        "w": 3,
+        "x": 21,
         "y": 0
       },
       "id": 50,
@@ -6403,6 +6469,6 @@
   "timezone": "browser",
   "title": "NetBird (Community OSS)",
   "uid": "netbird-oss-v3",
-  "version": 1,
+  "version": 1.1,
   "weekStart": ""
 }
