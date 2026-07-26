@@ -94,6 +94,11 @@ all three components (the `EXAMPLES.md` configs do this).
   names (`active_peers`, …) under `job="netbird-signal"`. Run combined (the default
   `netbird-server` container), Signal instruments carry a `signal_` prefix under
   `job="netbird-server"`. Signal panels match both.
+- **Scrape-job naming.** The Signal panels filter on `job=~"netbird.*"`, so any
+  job name starting with `netbird` works — `netbird-server`, `netbird-signal`,
+  `netbird-management`, whatever you already call it. Name the job something
+  without that prefix and the Signal rows render "No data" while every other row
+  keeps working, since the rest of the dashboard filters on `instance` alone.
 - A counter/histogram only appears after its first observation, so some panels read
   "No data" on an idle server until the activity occurs. The "gRPC by method" panels
   need `rpc_server_*` (otelgrpc), which 0.71.2's combined server doesn't emit.

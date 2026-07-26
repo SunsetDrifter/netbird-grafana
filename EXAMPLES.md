@@ -45,10 +45,14 @@ There are two topologies, and the dashboard supports both:
   `signal_registrations_total`, …); Relay metrics keep their `relay_` prefix.
 
 To work across both, the dashboard's Signal panels match either name form and
-either job, e.g.
-`{__name__=~"(signal_)?registrations_total", job=~"netbird-(server|signal)"}`.
+any job whose name starts with `netbird`, e.g.
+`{__name__=~"(signal_)?registrations_total", job=~"netbird.*"}`.
 So for a combined deployment you only need the `netbird-server` job below; the
 `netbird-signal` / `netbird-relay` jobs apply only to a separated deployment.
+
+The only constraint is the `netbird` prefix — if you scrape the combined server
+under a different name (`netbird-management`, say), the Signal panels still
+resolve. A job named without that prefix will leave them empty.
 
 The unix exporter needs three read-only bind mounts on the agent container:
 - `/proc:/host/proc:ro,rslave`
