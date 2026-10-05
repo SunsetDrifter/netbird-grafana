@@ -114,6 +114,12 @@ prometheus.scrape "netbird_relay" {
 //   --metrics.prometheus.entrypoint=metrics
 //   --metrics.prometheus.addrouterslabels=true
 //   --metrics.prometheus.addserviceslabels=true
+// These must be command-line flags when Traefik already has any: Traefik reads
+// exactly one static-configuration source, and the NetBird quickstart
+// (getting-started.sh) starts it with `command:` flags, so TRAEFIK_*
+// environment variables are silently ignored there. A compose override
+// replaces the whole command list, so carry the vendor's flags over too.
+// Check: up{job="traefik"} should be 1, not 0.
 prometheus.scrape "traefik" {
   targets = [
     { __address__ = "traefik:8082", instance = "netbird.example.com", job = "traefik" },
